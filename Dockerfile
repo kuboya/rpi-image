@@ -37,15 +37,29 @@ RUN git clone git://git.yoctoproject.org/poky -b warrior \
 && cd poky \
 && git clone git://git.yoctoproject.org/meta-raspberrypi -b warrior \
 && git clone git://git.openembedded.org/meta-openembedded -b warrior \
+&& git clone git://git.openembedded.org/openembedded-core -b warrior \
+&& git clone https://github.com/meta-qt5/meta-qt5 -b warrior \
 && . ./oe-init-build-env
 
-RUN bitbake-layers add-layer ../meta-openembedded/meta-oe \
-&& bitbake-layers add-layer ../meta-openembedded/meta-multimedia \
-&& bitbake-layers add-layer ../meta-openembedded/meta-networking \
-&& bitbake-layers add-layer ../meta-openembedded/meta-python \
-&& bitbake-layers add-layer ../meta-raspberrypi/
+# RUN bitbake-layers add-layer ../meta-openembedded/meta-oe \
+# && bitbake-layers add-layer ../meta-openembedded/meta-multimedia \
+# && bitbake-layers add-layer ../meta-openembedded/meta-networking \
+# && bitbake-layers add-layer ../meta-openembedded/meta-python \
+RUN bitbake-layers add-layer ../meta-raspberrypi \
+&& bitbake-layers add-layer ../meta-openembedded/meta-oe \
+&& bitbake-layers add-layer ../meta-qt5 
 
 #RUN touch conf/sanity.conf
+
+RUN vi ./conf/local.conf \
+- MACHINE ??= "qemux86" \
++ MACHINE ??= "raspberrypi2" \
++ DL_DIR ?= "${TOPDIR}/../downloads" \
++ SSTATE_DIR ?= "${TOPDIR}/../sstate-cache" \
++ BB_NUMBER_THREADS = "6" \
++ PARALLEL_MAKE = "-j 6" \
+# + GPU_MEM = "128" \
++ LICENSE_FLAGS_WHITELIST += "commercial"
 
 #RUN MACHINE=raspberrypi2 bitbake core-image-base
 
